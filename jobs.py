@@ -30,6 +30,19 @@ def new_job():
 	else:
 		return jsonify(status='broken')
 
+@app.route('/delete/job/<job_id>',methods=['DELETE']) # add new job via api
+def delete_job_api(job_id=None):
+	#parse api POST
+#	parser = reqparse.RequestParser()
+#	parser.add_argument('id',required=True,help="id cannot be blank!")
+#	args = parser.parse_args()
+#	new_job = str(args['id'])
+	if job_id:
+		delete_job(job_id)
+		return jsonify(success=('deleted id: %s'%job_id))
+	else:
+		return jsonify(status='broken')
+
 def sql(query): # sql to view records, pass query
 	conn = sqlite3.connect(db_filename) #write to local sqlite file
 	cursor = conn.cursor()
@@ -37,6 +50,18 @@ def sql(query): # sql to view records, pass query
 	data = cursor.fetchall()
 	conn.close()
 	return data
+
+def delete_job(job_id):
+	try:
+		conn = sqlite3.connect(db_filename)
+		cursor = conn.cursor()
+		query = ('''delete from jobs where id = "%s";''') % str(job_id)
+		cursor.execute(query)
+		conn.commit()
+		conn.close()
+		return True
+	except:
+		return False
 
 def add_job(job): #sql to insert new job, pass job
 	try:
